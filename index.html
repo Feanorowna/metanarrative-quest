@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metanarrative Quest — Fixed Expressions & Figurative Language</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- TOP STATUS BAR (Visible during quest) -->
+  <header id="top-bar" class="top-bar hidden">
+    <div class="top-bar-inner">
+      <div class="player-meta">
+        <span id="display-player-name" class="badge badge-user">Student</span>
+        <span id="display-room-code" class="badge badge-room">ROOM</span>
+        <span id="display-race-status" class="badge badge-survivor">In the Race</span>
+      </div>
+      <div class="score-meta">
+        <span>Score: <strong id="display-total-score">0</strong> / 38</span>
+        <span id="sync-status" class="sync-status" title="Database connection status">● Connected</span>
+      </div>
+    </div>
+    <div class="progress-track">
+      <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ==================== VIEW 1: STUDENT LOGIN ==================== -->
+    <section id="view-login" class="card view-section">
+      <div class="hero-header">
+        <span class="pill">Interactive Vocabulary Quest • Level B1</span>
+        <h1>Fixed Expressions &amp; Figurative Language</h1>
+        <p class="subtitle">Master 12 metanarrative expressions used to evaluate people, news, movies, and life events.</p>
+      </div>
+
+      <div class="rules-box">
+        <h3>How the Knockout Race Works:</h3>
+        <ul>
+          <li><strong>Step 1:</strong> Study 12 interactive vocabulary cards and match them with their meanings (12 pts).</li>
+          <li><strong>Step 2:</strong> Pass the <em>Media Fact-Checker</em> quiz (7 pts).</li>
+          <li><strong>⚡ Knockout Checkpoint:</strong> You need at least <strong>12 out of 19 points</strong> after Step 2 to stay in the main race! (If you score lower, you still complete all tasks and learn everything).</li>
+          <li><strong>Steps 3–5:</strong> Rewrite a review (7 pts), transform sentences (6 pts), and solve the <em>Fact, Myth or Shaggy-Dog Story?</em> challenge (6 pts).</li>
+        </ul>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="input-name">Your Name or Nickname</label>
+          <input type="text" id="input-name" placeholder="e.g., Aziza" maxlength="25" required>
+        </div>
+        <div class="form-group">
+          <label for="input-room">Room Code (from your teacher)</label>
+          <input type="text" id="input-room" placeholder="e.g., META01" maxlength="8" pattern="[A-Za-z0-9]{2,8}" required>
+          <small>2 to 8 letters or numbers (A–Z, 0–9)</small>
+        </div>
+        <button type="submit" id="btn-start" class="btn btn-primary btn-large">Join the Quest</button>
+        <p id="login-error" class="error-text hidden"></p>
+      </form>
+    </section>
+
+    <!-- ==================== VIEW 2: VOCABULARY DECK + LEVEL 1 (MATCHING) ==================== -->
+    <section id="view-level-1" class="view-section hidden">
+      <div class="section-header">
+        <span class="pill">Stage 1 of 5 • Study &amp; Match (12 Points)</span>
+        <h2>Part A: Explore the 12 Expressions</h2>
+        <p>Click on each card to flip it and see the definition, a real literary/biographical quote, and an everyday example.</p>
+      </div>
+
+      <div id="vocab-deck-grid" class="vocab-grid">
+        <!-- Cards injected by app.js -->
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-header">
+        <h2>Part B: Matching Challenge</h2>
+        <p>Select the correct expression from the dropdown list for each definition or situation. You get <strong>1 point</strong> per correct match.</p>
+      </div>
+
+      <div id="matching-container" class="exercise-list">
+        <!-- Matching items injected by app.js -->
+      </div>
+
+      <div class="action-footer">
+        <button id="btn-submit-l1" class="btn btn-primary btn-large">Check Answers &amp; Continue to Stage 2</button>
+        <p id="l1-feedback" class="feedback-banner hidden"></p>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: LEVEL 2 (MULTIPLE CHOICE) ==================== -->
+    <section id="view-level-2" class="view-section hidden">
+      <div class="section-header">
+        <span class="pill">Stage 2 of 5 • Imitation &amp; Recognition (7 Points)</span>
+        <h2>Media Fact-Checker</h2>
+        <p>Choose the best metanarrative expression to complete each headline, movie review, or mini-dialogue.</p>
+      </div>
+
+      <div id="mc-container" class="exercise-list">
+        <!-- Multiple choice items injected by app.js -->
+      </div>
+
+      <div class="action-footer">
+        <button id="btn-submit-l2" class="btn btn-primary btn-large">Submit &amp; Check Knockout Status</button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: KNOCKOUT CHECKPOINT ==================== -->
+    <section id="view-knockout" class="card view-section hidden">
+      <div id="knockout-banner" class="knockout-box">
+        <!-- Filled dynamically: Survivor vs Eliminated -->
+      </div>
+      <div class="action-footer">
+        <button id="btn-continue-l3" class="btn btn-primary btn-large">Continue to Stage 3</button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 5: LEVEL 3 (SUBSTITUTION / GAP-FILL) ==================== -->
+    <section id="view-level-3" class="view-section hidden">
+      <div class="section-header">
+        <span class="pill">Stage 3 of 5 • Substitution (7 Points)</span>
+        <h2>Rewrite the Boring Review</h2>
+        <p>Read the review and news post below. Replace the <strong>underlined plain phrases</strong> with vivid metanarrative expressions from the list.</p>
+      </div>
+
+      <div id="gapfill-container" class="card review-card">
+        <!-- Gap-fill story injected by app.js -->
+      </div>
+
+      <div class="action-footer">
+        <button id="btn-submit-l3" class="btn btn-primary btn-large">Check Review &amp; Continue to Stage 4</button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 6: LEVEL 4 (TRANSFORMATION) ==================== -->
+    <section id="view-level-4" class="view-section hidden">
+      <div class="section-header">
+        <span class="pill">Stage 4 of 5 • Transformation (6 Points)</span>
+        <h2>Register &amp; Nuance Switch</h2>
+        <p>Rewrite the second sentence so that it has a similar meaning to the first sentence, using the <strong>KEY WORD</strong> in brackets. Do not change the key word.</p>
+      </div>
+
+      <div id="transform-container" class="exercise-list">
+        <!-- Transformation items injected by app.js -->
+      </div>
+
+      <div class="action-footer">
+        <button id="btn-submit-l4" class="btn btn-primary btn-large">Check Sentences &amp; Enter Final Game</button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 7: LEVEL 5 (FINAL GAME) ==================== -->
+    <section id="view-level-5" class="view-section hidden">
+      <div class="section-header">
+        <span class="pill">Stage 5 of 5 • Final Challenge (6 Points)</span>
+        <h2>Fact, Myth, or Shaggy-Dog Story?</h2>
+        <p>Read these 6 short media cards carefully. Classify each story using the correct metanarrative label. <strong>Watch out:</strong> one card is a deliberate trap!</p>
+      </div>
+
+      <div id="finalgame-container" class="cards-grid-2">
+        <!-- 6 Media cards injected by app.js -->
+      </div>
+
+      <div class="action-footer">
+        <button id="btn-submit-l5" class="btn btn-primary btn-large">Finish Quest &amp; See Results</button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 8: RESULTS, DEBRIEF & LIVE LEADERBOARD ==================== -->
+    <section id="view-results" class="view-section hidden">
+      <div class="card results-summary">
+        <span class="pill">Quest Completed!</span>
+        <h2 id="final-greeting">Great job!</h2>
+        <div class="score-cards">
+          <div class="score-box">
+            <span class="score-label">Total Score</span>
+            <span id="res-total" class="score-big">0 / 38</span>
+          </div>
+          <div class="score-box">
+            <span class="score-label">Accuracy</span>
+            <span id="res-percent" class="score-big">0%</span>
+          </div>
+          <div class="score-box">
+            <span class="score-label">Race Status</span>
+            <span id="res-status" class="score-big">Survivor</span>
+          </div>
+        </div>
+
+        <div class="breakdown-table-wrap">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Stage 1 (Match)</th>
+                <th>Stage 2 (MC)</th>
+                <th>Stage 3 (Review)</th>
+                <th>Stage 4 (Transform)</th>
+                <th>Stage 5 (Final Game)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="res-s1">0/12</td>
+                <td id="res-s2">0/7</td>
+                <td id="res-s3">0/7</td>
+                <td id="res-s4">0/6</td>
+                <td id="res-s5">0/6</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="export-actions">
+          <button id="btn-export-student" class="btn btn-secondary">Copy / Download My Result Summary</button>
+          <p id="export-notice" class="small-note hidden">Result copied to clipboard! If your internet disconnected, send this text to your teacher.</p>
+        </div>
+      </div>
+
+      <!-- LIVE LEADERBOARD -->
+      <div class="card">
+        <h3>Live Room Leaderboard</h3>
+        <p class="small-note">Updates automatically as classmates finish stages.</p>
+        <div class="table-responsive">
+          <table class="data-table">
+RankNameStageRace StatusScoreLoading leaderboard...Post-Game Debrief: All Answers & Trap Explained
+Note: The fictional news items and movie reviews in Stage 5 were created specifically for this language exercise.
+Teacher Monitoring View
+Live Class Gradebook
+Formative classroom tool. Room data is visible to anyone with the room code.
+Load Room
+Export CSV
+
+Students: 0
+Survivors: 0
+Eliminated: 0
+Trap Caught: 0%
+
+Name	Status	S1 (12)	S2 (7)	S3 (7)	S4 (6)	S5 (6)	Total (38)	%	Trap?
+Enter a room code above to monitor live progress.
+
+Offline Fallback Collector
+Paste Student Result Summaries
+If a student lost internet connection, paste their exported result JSON string below to add it to a local CSV export.
+Add to Table
+Download Collected CSV
+
+
+Name	Room	Total	Status	Source
