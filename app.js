@@ -31,7 +31,6 @@
 
   function initFirebase() {
     const cfg = window.FIREBASE_CONFIG;
-    const syncEl = document.getElementById("sync-status");
 
     if (!cfg || !cfg.apiKey || cfg.apiKey.includes("PASTE_")) {
       setSyncStatus(false, "Config missing (Local preview only)");
@@ -89,6 +88,7 @@
   // ==================== RENDER EXERCISES ====================
   function renderAllExercises() {
     const data = window.QUEST_CONTENT;
+    if (!data) return;
 
     // 1A. Vocabulary Flip Cards
     const deckGrid = document.getElementById("vocab-deck-grid");
@@ -229,60 +229,70 @@
     }
 
     // Submit Stage 1 (Matching)
-    document.getElementById("btn-submit-l1")?.addEventListener("click", async () => {
-      const items = window.QUEST_CONTENT.stage1Matching;
-      let score = 0;
-      for (const item of items) {
-        const val = document.getElementById("match-" + item.id).value;
-        if (!val) {
-          alert("Please complete all 12 matching items before continuing.");
-          return;
+    const btnL1 = document.getElementById("btn-submit-l1");
+    if (btnL1) {
+      btnL1.addEventListener("click", async () => {
+        const items = window.QUEST_CONTENT.stage1Matching;
+        let score = 0;
+        for (const item of items) {
+          const val = document.getElementById("match-" + item.id).value;
+          if (!val) {
+            alert("Please complete all 12 matching items before continuing.");
+            return;
+          }
+          if (val === item.answer) score++;
         }
-        if (val === item.answer) score++;
-      }
 
-      state.scores.s1 = score;
-      recalcTotal();
-      state.phase = "stage2";
-      updateTopBar(35);
-      await syncProgressToFirebase();
-      showView("view-level-2");
-    });
+        state.scores.s1 = score;
+        recalcTotal();
+        state.phase = "stage2";
+        updateTopBar(35);
+        await syncProgressToFirebase();
+        showView("view-level-2");
+      });
+    }
 
     // Submit Stage 2 (Multiple Choice -> Knockout Checkpoint)
-    document.getElementById("btn-submit-l2")?.addEventListener("click", async () => {
-      const items = window.QUEST_CONTENT.stage2MC;
-      let score = 0;
-      for (const item of items) {
-        const checked = document.querySelector(`input[name="${item.id}"]:checked`);
-        if (!checked) {
-          alert("Please answer all 7 questions before checking your Knockout status.");
-          return;
+    const btnL2 = document.getElementById("btn-submit-l2");
+    if (btnL2) {
+      btnL2.addEventListener("click", async () => {
+        const items = window.QUEST_CONTENT.stage2MC;
+        let score = 0;
+        for (const item of items) {
+          const checked = document.querySelector(`input[name="${item.id}"]:checked`);
+          if (!checked) {
+            alert("Please answer all 7 questions before checking your Knockout status.");
+            return;
+          }
+          if (checked.value === item.answer) score++;
         }
-        if (checked.value === item.answer) score++;
-      }
 
-      state.scores.s2 = score;
-      recalcTotal();
+        state.scores.s2 = score;
+        recalcTotal();
 
-      const combined = state.scores.s1 + state.scores.s2;
-      state.eliminated = combined < KNOCKOUT_THRESHOLD;
-      state.phase = "knockout";
+        const combined = state.scores.s1 + state.scores.s2;
+        state.eliminated = combined < KNOCKOUT_THRESHOLD;
+        state.phase = "knockout";
 
-      updateTopBar(55);
-      renderKnockoutBanner(combined);
-      await syncProgressToFirebase();
-      showView("view-knockout");
-    });
-
-    // Continue from Knockout to Stage 3
-document.getElementById("btn-continue-l3")?.addEventListener("click", async () => {
+        updateTopBar(55);
+        renderKnockoutBanner(combined);
+await syncProgressToFirebase();
+showView("view-knockout");
+});
+}
+// Continue from Knockout to Stage 3
+const btnContL3 = document.getElementById("btn-continue-l3");
+if (btnContL3) {
+btnContL3.addEventListener("click", async () => {
 state.phase = "stage3";
 await syncProgressToFirebase();
 showView("view-level-3");
 });
+}
 // Submit Stage 3 (Gap-Fill Review)
-document.getElementById("btn-submit-l3")?.addEventListener("click", async () => {
+const btnL3 = document.getElementById("btn-submit-l3");
+if (btnL3) {
+btnL3.addEventListener("click", async () => {
 const gaps = window.QUEST_CONTENT.stage3GapFill.segments.filter(s => s.id);
 let score = 0;
 for (const g of gaps) {
@@ -300,8 +310,11 @@ updateTopBar(75);
 await syncProgressToFirebase();
 showView("view-level-4");
 });
+}
 // Submit Stage 4 (Transformation)
-document.getElementById("btn-submit-l4")?.addEventListener("click", async () => {
+const btnL4 = document.getElementById("btn-submit-l4");
+if (btnL4) {
+btnL4.addEventListener("click", async () => {
 const items = window.QUEST_CONTENT.stage4Transform;
 let score = 0;
 for (const item of items) {
@@ -320,8 +333,11 @@ updateTopBar(90);
 await syncProgressToFirebase();
 showView("view-level-5");
 });
+}
 // Submit Stage 5 (Final Game -> Results & Debrief)
-document.getElementById("btn-submit-l5")?.addEventListener("click", async () => {
+const btnL5 = document.getElementById("btn-submit-l5");
+if (btnL5) {
+btnL5.addEventListener("click", async () => {
 const cards = window.QUEST_CONTENT.stage5FinalGame.cards;
 let score = 0;
 let trapCaught = false;
@@ -348,8 +364,11 @@ renderResultsAndDebrief();
 showView("view-results");
 subscribeLeaderboard();
 });
+}
 // Student Export Button
-document.getElementById("btn-export-student")?.addEventListener("click", () => {
+const btnExport = document.getElementById("btn-export-student");
+if (btnExport) {
+btnExport.addEventListener("click", () => {
 const payload = JSON.stringify({
 name: state.name,
 room: state.room,
@@ -359,7 +378,11 @@ eliminated: state.eliminated,
 trapCaught: state.trapCaught,
 exportedAt: new Date().toISOString()
 });
-navigator.clipboard?.writeText(payload).catch(() => {});
+if (navigator.clipboard) {
+navigator.clipboard.writeText(payload).catch(function (err) {
+console.warn("Clipboard write failed:", err);
+});
+}
 document.getElementById("export-notice").classList.remove("hidden");
 const blob = new Blob([payload], { type: "application/json" });
 const url = URL.createObjectURL(blob);
@@ -369,8 +392,11 @@ a.download = quest-result-${state.name.replace(/\s+/g, "_")}.json;
 a.click();
 URL.revokeObjectURL(url);
 });
+}
 // Teacher View Controls
-document.getElementById("btn-teacher-load")?.addEventListener("click", () => {
+const btnTeacherLoad = document.getElementById("btn-teacher-load");
+if (btnTeacherLoad) {
+btnTeacherLoad.addEventListener("click", () => {
 const r = document.getElementById("teacher-room-input").value.trim().toUpperCase();
 if (/^[A-Z0-9]{2,8}$/.test(r)) {
 loadTeacherRoom(r);
@@ -378,7 +404,11 @@ loadTeacherRoom(r);
 alert("Enter a valid room code (2–8 letters or numbers).");
 }
 });
-document.getElementById("btn-teacher-csv")?.addEventListener("click", exportTeacherCSV);
+}
+const btnTeacherCsv = document.getElementById("btn-teacher-csv");
+if (btnTeacherCsv) {
+btnTeacherCsv.addEventListener("click", exportTeacherCSV);
+}
 // Offline Collector Controls
 initCollectMode();
 }
@@ -557,7 +587,9 @@ downloadCSV(lines.join("\n"), "metanarrative-quest-grades.csv");
 // ==================== COLLECT FALLBACK PAGE ====================
 function initCollectMode() {
 const collected = [];
-document.getElementById("btn-collect-add")?.addEventListener("click", () => {
+const btnAdd = document.getElementById("btn-collect-add");
+if (btnAdd) {
+btnAdd.addEventListener("click", () => {
 const raw = document.getElementById("collect-input").value.trim();
 if (!raw) return;
 try {
@@ -568,11 +600,14 @@ const tbody = document.getElementById("collect-table-body");
 tbody.innerHTML = collected.map(c => `
 ${escapeHtml(c.name || "Unknown")}
 ${escapeHtml(c.room || "—")}\({c.total || 0} / \){MAX_TOTAL}${c.eliminated ? "Eliminated" : "Survivor"}Pasted JSON`).join("");
-} catch (e) {
+} catch (err) {
 alert("Invalid result format. Please paste the exact JSON text exported by the student.");
 }
 });
-document.getElementById("btn-collect-csv")?.addEventListener("click", () => {
+}
+const btnCsv = document.getElementById("btn-collect-csv");
+if (btnCsv) {
+btnCsv.addEventListener("click", () => {
 if (!collected.length) return;
 const lines = ["Name,Room,Total,Status,Source"];
 collected.forEach(c => {
@@ -580,6 +615,7 @@ lines.push("${(c.name || "").replace(/"/g, '""')}",${c.room || ""},${c.total || 
 });
 downloadCSV(lines.join("\n"), "collected-fallback-grades.csv");
 });
+}
 }
 function downloadCSV(csvContent, filename) {
 const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
