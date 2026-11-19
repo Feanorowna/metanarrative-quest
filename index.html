@@ -69,9 +69,7 @@
         <p>Click on each card to flip it and see the definition, a real literary/biographical quote, and an everyday example.</p>
       </div>
 
-      <div id="vocab-deck-grid" class="vocab-grid">
-        <!-- Cards injected by app.js -->
-      </div>
+      <div id="vocab-deck-grid" class="vocab-grid"></div>
 
       <div class="divider"></div>
 
@@ -80,9 +78,7 @@
         <p>Select the correct expression from the dropdown list for each definition or situation. You get <strong>1 point</strong> per correct match.</p>
       </div>
 
-      <div id="matching-container" class="exercise-list">
-        <!-- Matching items injected by app.js -->
-      </div>
+      <div id="matching-container" class="exercise-list"></div>
 
       <div class="action-footer">
         <button id="btn-submit-l1" class="btn btn-primary btn-large">Check Answers &amp; Continue to Stage 2</button>
@@ -98,9 +94,7 @@
         <p>Choose the best metanarrative expression to complete each headline, movie review, or mini-dialogue.</p>
       </div>
 
-      <div id="mc-container" class="exercise-list">
-        <!-- Multiple choice items injected by app.js -->
-      </div>
+      <div id="mc-container" class="exercise-list"></div>
 
       <div class="action-footer">
         <button id="btn-submit-l2" class="btn btn-primary btn-large">Submit &amp; Check Knockout Status</button>
@@ -109,9 +103,7 @@
 
     <!-- ==================== VIEW 4: KNOCKOUT CHECKPOINT ==================== -->
     <section id="view-knockout" class="card view-section hidden">
-      <div id="knockout-banner" class="knockout-box">
-        <!-- Filled dynamically: Survivor vs Eliminated -->
-      </div>
+      <div id="knockout-banner" class="knockout-box"></div>
       <div class="action-footer">
         <button id="btn-continue-l3" class="btn btn-primary btn-large">Continue to Stage 3</button>
       </div>
@@ -125,9 +117,7 @@
         <p>Read the review and news post below. Replace the <strong>underlined plain phrases</strong> with vivid metanarrative expressions from the list.</p>
       </div>
 
-      <div id="gapfill-container" class="card review-card">
-        <!-- Gap-fill story injected by app.js -->
-      </div>
+      <div id="gapfill-container" class="card review-card"></div>
 
       <div class="action-footer">
         <button id="btn-submit-l3" class="btn btn-primary btn-large">Check Review &amp; Continue to Stage 4</button>
@@ -142,9 +132,7 @@
         <p>Rewrite the second sentence so that it has a similar meaning to the first sentence, using the <strong>KEY WORD</strong> in brackets. Do not change the key word.</p>
       </div>
 
-      <div id="transform-container" class="exercise-list">
-        <!-- Transformation items injected by app.js -->
-      </div>
+      <div id="transform-container" class="exercise-list"></div>
 
       <div class="action-footer">
         <button id="btn-submit-l4" class="btn btn-primary btn-large">Check Sentences &amp; Enter Final Game</button>
@@ -159,9 +147,7 @@
         <p>Read these 6 short media cards carefully. Classify each story using the correct metanarrative label. <strong>Watch out:</strong> one card is a deliberate trap!</p>
       </div>
 
-      <div id="finalgame-container" class="cards-grid-2">
-        <!-- 6 Media cards injected by app.js -->
-      </div>
+      <div id="finalgame-container" class="cards-grid-2"></div>
 
       <div class="action-footer">
         <button id="btn-submit-l5" class="btn btn-primary btn-large">Finish Quest &amp; See Results</button>
@@ -217,13 +203,29 @@
         </div>
       </div>
 
-      <!-- LIVE LEADERBOARD -->
       <div class="card">
         <h3>Live Room Leaderboard</h3>
         <p class="small-note">Updates automatically as classmates finish stages.</p>
         <div class="table-responsive">
           <table class="data-table">
-RankNameStageRace StatusScoreLoading leaderboard...Post-Game Debrief: All Answers & Trap Explained
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Stage</th>
+                <th>Race Status</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <tr><td colspan="5">Loading leaderboard...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+Post-Game Debrief: All Answers & Trap Explained
 Note: The fictional news items and movie reviews in Stage 5 were created specifically for this language exercise.
 Teacher Monitoring View
 Live Class Gradebook
