@@ -1,9 +1,8 @@
 (function () {
   "use strict";
 
-  // ==================== STATE & CONSTANTS ====================
-  const KNOCKOUT_THRESHOLD = 12; // Out of 19 (12 + 7)
-  const MAX_TOTAL = 38;          // 12 + 7 + 7 + 6 + 6
+  const KNOCKOUT_THRESHOLD = 12;
+  const MAX_TOTAL = 38;
 
   let db = null;
   let auth = null;
@@ -22,8 +21,7 @@
     finalGameAnswers: {}
   };
 
-  // ==================== INITIALIZATION ====================
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", function () {
     initFirebase();
     routeMode();
     bindEvents();
@@ -79,116 +77,121 @@
   }
 
   function showView(viewId) {
-    document.querySelectorAll(".view-section").forEach(el => el.classList.add("hidden"));
+    document.querySelectorAll(".view-section").forEach(function (el) {
+      el.classList.add("hidden");
+    });
     const target = document.getElementById(viewId);
     if (target) target.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // ==================== RENDER EXERCISES ====================
   function renderAllExercises() {
     const data = window.QUEST_CONTENT;
     if (!data) return;
 
-    // 1A. Vocabulary Flip Cards
     const deckGrid = document.getElementById("vocab-deck-grid");
-    deckGrid.innerHTML = data.vocab.map(item => `
-      <div class="flip-card" onclick="this.classList.toggle('flipped')">
-        <div class="flip-card-inner">
-          <div class="flip-card-front">
-            <div class="card-icon">${item.icon}</div>
-            <div class="card-category">${item.category}</div>
-            <div class="card-term">${item.term}</div>
-            <div class="flip-hint">Tap to flip ↻</div>
-          </div>
-          <div class="flip-card-back">
-            <div class="back-def">${item.definition}</div>
-            <div class="back-example"><span>Literary / Biographical Quote:</span>${item.monographQuote}</div>
-            <div class="back-example"><span>Everyday Context:</span>${item.simpleExample}</div>
+    deckGrid.innerHTML = data.vocab.map(function (item) {
+      return `
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon">${item.icon}</div>
+              <div class="card-category">${item.category}</div>
+              <div class="card-term">${item.term}</div>
+              <div class="flip-hint">Tap to flip ↻</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-def">${item.definition}</div>
+              <div class="back-example"><span>Literary / Biographical Quote:</span>${item.monographQuote}</div>
+              <div class="back-example"><span>Everyday Context:</span>${item.simpleExample}</div>
+            </div>
           </div>
         </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
-    // 1B. Matching Dropdowns
-    const allTerms = data.vocab.map(v => v.term);
-    const shuffledTerms = [...allTerms].sort(() => Math.random() - 0.5);
+    const allTerms = data.vocab.map(function (v) { return v.term; });
+    const shuffledTerms = [...allTerms].sort(function () { return Math.random() - 0.5; });
     const matchContainer = document.getElementById("matching-container");
 
-    matchContainer.innerHTML = data.stage1Matching.map(item => `
-      <div class="q-item">
-        <div class="q-prompt">${item.prompt}</div>
-        <select id="match-${item.id}" data-answer="${escapeHtml(item.answer)}">
-          <option value="">-- Choose expression --</option>
-          ${shuffledTerms.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}
-        </select>
-      </div>
-    `).join("");
-
-    // 2. Multiple Choice
-    const mcContainer = document.getElementById("mc-container");
-    mcContainer.innerHTML = data.stage2MC.map(item => `
-      <div class="q-item">
-        <div class="q-prompt">${item.question}</div>
-        <div class="mc-options">
-          ${item.options.map(opt => `
-            <label class="mc-label">
-              <input type="radio" name="${item.id}" value="${escapeHtml(opt)}">
-              <span>${escapeHtml(opt)}</span>
-            </label>
-          `).join("")}
+    matchContainer.innerHTML = data.stage1Matching.map(function (item) {
+      return `
+        <div class="q-item">
+          <div class="q-prompt">${item.prompt}</div>
+          <select id="match-${item.id}" data-answer="${escapeHtml(item.answer)}">
+            <option value="">-- Choose expression --</option>
+            ${shuffledTerms.map(function (t) { return `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`; }).join("")}
+          </select>
         </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
-    // 3. Gap-Fill Review
+    const mcContainer = document.getElementById("mc-container");
+    mcContainer.innerHTML = data.stage2MC.map(function (item) {
+      return `
+        <div class="q-item">
+          <div class="q-prompt">${item.question}</div>
+          <div class="mc-options">
+            ${item.options.map(function (opt) {
+              return `
+                <label class="mc-label">
+                  <input type="radio" name="${item.id}" value="${escapeHtml(opt)}">
+                  <span>${escapeHtml(opt)}</span>
+                </label>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }).join("");
+
     const gapContainer = document.getElementById("gapfill-container");
-    const shuffledChoices = [...data.stage3GapFill.choices].sort(() => Math.random() - 0.5);
-    gapContainer.innerHTML = data.stage3GapFill.segments.map(seg => {
+    const shuffledChoices = [...data.stage3GapFill.choices].sort(function () { return Math.random() - 0.5; });
+    gapContainer.innerHTML = data.stage3GapFill.segments.map(function (seg) {
       if (seg.text) return `<span>${seg.text}</span>`;
       return `
         <select id="gap-${seg.id}" class="inline-select">
           <option value="">-- select --</option>
-          ${shuffledChoices.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("")}
+          ${shuffledChoices.map(function (c) { return `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`; }).join("")}
         </select>
         <span class="underlined-cue">(${seg.cue})</span>
       `;
     }).join("");
 
-    // 4. Key-Word Transformation
     const transContainer = document.getElementById("transform-container");
-    transContainer.innerHTML = data.stage4Transform.map(item => `
-      <div class="q-item">
-        <div class="q-prompt">${item.original} <span class="key-badge">${item.keyWord}</span></div>
-        <p>${item.prefix} <input type="text" id="trans-${item.id}" class="transform-input" placeholder="Type missing words here..." autocomplete="off"> ${item.suffix}</p>
-      </div>
-    `).join("");
+    transContainer.innerHTML = data.stage4Transform.map(function (item) {
+      return `
+        <div class="q-item">
+          <div class="q-prompt">${item.original} <span class="key-badge">${item.keyWord}</span></div>
+          <p>${item.prefix} <input type="text" id="trans-${item.id}" class="transform-input" placeholder="Type missing words here..." autocomplete="off"> ${item.suffix}</p>
+        </div>
+      `;
+    }).join("");
 
-    // 5. Final Game Cards
     const fgContainer = document.getElementById("finalgame-container");
-    fgContainer.innerHTML = data.stage5FinalGame.cards.map(card => `
-      <div class="media-card">
-        <div>
-          <div class="media-tag">${card.tag}</div>
-          <div class="media-text">${card.text}</div>
+    fgContainer.innerHTML = data.stage5FinalGame.cards.map(function (card) {
+      return `
+        <div class="media-card">
+          <div>
+            <div class="media-tag">${card.tag}</div>
+            <div class="media-text">${card.text}</div>
+          </div>
+          <div>
+            <label for="fg-${card.id}" style="font-size:0.85rem; font-weight:600;">Choose label:</label>
+            <select id="fg-${card.id}" style="margin-top:0.35rem;">
+              <option value="">-- Select metanarrative label --</option>
+              ${data.stage5FinalGame.labels.map(function (lbl) { return `<option value="${escapeHtml(lbl)}">${escapeHtml(lbl)}</option>`; }).join("")}
+            </select>
+          </div>
         </div>
-        <div>
-          <label for="fg-${card.id}" style="font-size:0.85rem; font-weight:600;">Choose label:</label>
-          <select id="fg-${card.id}" style="margin-top:0.35rem;">
-            <option value="">-- Select metanarrative label --</option>
-            ${data.stage5FinalGame.labels.map(lbl => `<option value="${escapeHtml(lbl)}">${escapeHtml(lbl)}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
   }
 
-  // ==================== EVENT BINDINGS ====================
   function bindEvents() {
-    // Student Login
     const loginForm = document.getElementById("login-form");
     if (loginForm) {
-      loginForm.addEventListener("submit", async (e) => {
+      loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         const nameInput = document.getElementById("input-name").value.trim();
         const roomInput = document.getElementById("input-room").value.trim().toUpperCase();
@@ -228,10 +231,9 @@
       });
     }
 
-    // Submit Stage 1 (Matching)
     const btnL1 = document.getElementById("btn-submit-l1");
     if (btnL1) {
-      btnL1.addEventListener("click", async () => {
+      btnL1.addEventListener("click", async function () {
         const items = window.QUEST_CONTENT.stage1Matching;
         let score = 0;
         for (const item of items) {
@@ -252,10 +254,9 @@
       });
     }
 
-    // Submit Stage 2 (Multiple Choice -> Knockout Checkpoint)
     const btnL2 = document.getElementById("btn-submit-l2");
     if (btnL2) {
-      btnL2.addEventListener("click", async () => {
+      btnL2.addEventListener("click", async function () {
         const items = window.QUEST_CONTENT.stage2MC;
         let score = 0;
         for (const item of items) {
@@ -276,24 +277,23 @@
 
         updateTopBar(55);
         renderKnockoutBanner(combined);
-await syncProgressToFirebase();
-showView("view-knockout");
-});
-}
-// Continue from Knockout to Stage 3
+        await syncProgressToFirebase();
+        showView("view-knockout");
+      });
+    }
+
 const btnContL3 = document.getElementById("btn-continue-l3");
 if (btnContL3) {
-btnContL3.addEventListener("click", async () => {
+btnContL3.addEventListener("click", async function () {
 state.phase = "stage3";
 await syncProgressToFirebase();
 showView("view-level-3");
 });
 }
-// Submit Stage 3 (Gap-Fill Review)
 const btnL3 = document.getElementById("btn-submit-l3");
 if (btnL3) {
-btnL3.addEventListener("click", async () => {
-const gaps = window.QUEST_CONTENT.stage3GapFill.segments.filter(s => s.id);
+btnL3.addEventListener("click", async function () {
+const gaps = window.QUEST_CONTENT.stage3GapFill.segments.filter(function (s) { return s.id; });
 let score = 0;
 for (const g of gaps) {
 const val = document.getElementById("gap-" + g.id).value;
@@ -311,10 +311,9 @@ await syncProgressToFirebase();
 showView("view-level-4");
 });
 }
-// Submit Stage 4 (Transformation)
 const btnL4 = document.getElementById("btn-submit-l4");
 if (btnL4) {
-btnL4.addEventListener("click", async () => {
+btnL4.addEventListener("click", async function () {
 const items = window.QUEST_CONTENT.stage4Transform;
 let score = 0;
 for (const item of items) {
@@ -334,10 +333,9 @@ await syncProgressToFirebase();
 showView("view-level-5");
 });
 }
-// Submit Stage 5 (Final Game -> Results & Debrief)
 const btnL5 = document.getElementById("btn-submit-l5");
 if (btnL5) {
-btnL5.addEventListener("click", async () => {
+btnL5.addEventListener("click", async function () {
 const cards = window.QUEST_CONTENT.stage5FinalGame.cards;
 let score = 0;
 let trapCaught = false;
@@ -365,10 +363,9 @@ showView("view-results");
 subscribeLeaderboard();
 });
 }
-// Student Export Button
 const btnExport = document.getElementById("btn-export-student");
 if (btnExport) {
-btnExport.addEventListener("click", () => {
+btnExport.addEventListener("click", function () {
 const payload = JSON.stringify({
 name: state.name,
 room: state.room,
@@ -393,10 +390,9 @@ a.click();
 URL.revokeObjectURL(url);
 });
 }
-// Teacher View Controls
 const btnTeacherLoad = document.getElementById("btn-teacher-load");
 if (btnTeacherLoad) {
-btnTeacherLoad.addEventListener("click", () => {
+btnTeacherLoad.addEventListener("click", function () {
 const r = document.getElementById("teacher-room-input").value.trim().toUpperCase();
 if (/^[A-Z0-9]{2,8}$/.test(r)) {
 loadTeacherRoom(r);
@@ -409,10 +405,8 @@ const btnTeacherCsv = document.getElementById("btn-teacher-csv");
 if (btnTeacherCsv) {
 btnTeacherCsv.addEventListener("click", exportTeacherCSV);
 }
-// Offline Collector Controls
 initCollectMode();
 }
-// ==================== HELPERS & UI UPDATES ====================
 function recalcTotal() {
 const s = state.scores;
 state.total = s.s1 + s.s2 + s.s3 + s.s4 + s.s5;
@@ -457,11 +451,10 @@ document.getElementById("res-s2").textContent = ${state.scores.s2}/7;
 document.getElementById("res-s3").textContent = ${state.scores.s3}/7;
 document.getElementById("res-s4").textContent = ${state.scores.s4}/6;
 document.getElementById("res-s5").textContent = ${state.scores.s5}/6;
-// Build Debrief
 const debriefEl = document.getElementById("debrief-container");
 const data = window.QUEST_CONTENT;
 let html = "Stage 5: Media Cards & Trap Breakdown";
-data.stage5FinalGame.cards.forEach(card => {
+data.stage5FinalGame.cards.forEach(function (card) {
 const userAns = state.finalGameAnswers[card.id] || "No answer";
 const isOk = userAns === card.answer;
 html += `
@@ -471,14 +464,13 @@ ${card.debrief}
 `;
 });
 html += "Stage 4: Transformation Model Answers";
-data.stage4Transform.forEach(t => {
+data.stage4Transform.forEach(function (t) {
 html += <li style="margin-bottom:0.4rem;">${t.prefix} <strong>${t.modelAnswer}</strong> ${t.suffix}</li>;
 });
 html += "";
 debriefEl.innerHTML = html;
 }
-// ==================== FIREBASE SYNC & LEADERBOARD ====================
-async function syncProgressToFirebase(isFinal = false) {
+async function syncProgressToFirebase(isFinal) {
 if (!isFirebaseReady || !currentUserUid || !state.room) return;
 const record = {
 name: state.name,
@@ -503,16 +495,17 @@ setSyncStatus(false, "Save failed — export result at end");
 }
 function subscribeLeaderboard() {
 if (!isFirebaseReady || !state.room) return;
-db.ref(rooms/${state.room}/players).on("value", snap => {
+db.ref(rooms/${state.room}/players).on("value", function (snap) {
 const val = snap.val() || {};
-const list = Object.values(val).sort((a, b) => (b.total || 0) - (a.total || 0));
+const list = Object.values(val).sort(function (a, b) { return (b.total || 0) - (a.total || 0); });
 const tbody = document.getElementById("leaderboard-body");
-tbody.innerHTML = list.map((p, idx) => `
+tbody.innerHTML = list.map(function (p, idx) {
+return `
 #${idx + 1}
-${escapeHtml(p.name)}${escapeHtml(p.phase)}${p.eliminated ? "Eliminated" : "Survivor"}\({p.total || 0} / \){MAX_TOTAL}`).join("");
+${escapeHtml(p.name)}${escapeHtml(p.phase)}${p.eliminated ? "Eliminated" : "Survivor"}\({p.total || 0} / \){MAX_TOTAL}`;
+}).join("");
 });
 }
-// ==================== TEACHER VIEW ====================
 let currentTeacherRows = [];
 async function loadTeacherRoom(roomCode) {
 if (!isFirebaseReady) {
@@ -523,19 +516,19 @@ try {
 if (!auth.currentUser) {
 await auth.signInAnonymously();
 }
-} catch (e) {
-console.warn("Teacher anon auth warning:", e);
+} catch (err) {
+console.warn("Teacher anon auth warning:", err);
 }
 db.ref(rooms/${roomCode}/players).off();
-db.ref(rooms/${roomCode}/players).on("value", snap => {
+db.ref(rooms/${roomCode}/players).on("value", function (snap) {
 const val = snap.val() || {};
-const rows = Object.values(val).sort((a, b) => (b.total || 0) - (a.total || 0));
+const rows = Object.values(val).sort(function (a, b) { return (b.total || 0) - (a.total || 0); });
 currentTeacherRows = rows;
 const totalCount = rows.length;
-const survivors = rows.filter(r => !r.eliminated).length;
-const eliminated = rows.filter(r => r.eliminated).length;
-const finishedList = rows.filter(r => r.finished);
-const trapYes = finishedList.filter(r => r.trapCaught).length;
+const survivors = rows.filter(function (r) { return !r.eliminated; }).length;
+const eliminated = rows.filter(function (r) { return r.eliminated; }).length;
+const finishedList = rows.filter(function (r) { return r.finished; });
+const trapYes = finishedList.filter(function (r) { return r.trapCaught; }).length;
 const trapPct = finishedList.length ? Math.round((trapYes / finishedList.length) * 100) : 0;
 document.getElementById("stat-count").textContent = totalCount;
 document.getElementById("stat-survivors").textContent = survivors;
@@ -546,7 +539,7 @@ if (!rows.length) {
 tbody.innerHTML = <tr><td colspan="10">No students in room ${escapeHtml(roomCode)} yet.</td></tr>;
 return;
 }
-tbody.innerHTML = rows.map(r => {
+tbody.innerHTML = rows.map(function (r) {
 const s = r.scores || { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0 };
 const pct = Math.round(((r.total || 0) / MAX_TOTAL) * 100);
 const statusText = r.finished
@@ -565,7 +558,7 @@ return;
 }
 const headers = ["Name", "Status", "Stage1_Match", "Stage2_MC", "Stage3_Review", "Stage4_Transform", "Stage5_FinalGame", "Total_38", "Percent", "Trap_Caught"];
 const lines = [headers.join(",")];
-currentTeacherRows.forEach(r => {
+currentTeacherRows.forEach(function (r) {
 const s = r.scores || {};
 const pct = Math.round(((r.total || 0) / MAX_TOTAL) * 100);
 const status = r.eliminated ? "Eliminated" : "Survivor";
@@ -584,12 +577,11 @@ r.trapCaught ? "Yes" : "No"
 });
 downloadCSV(lines.join("\n"), "metanarrative-quest-grades.csv");
 }
-// ==================== COLLECT FALLBACK PAGE ====================
 function initCollectMode() {
 const collected = [];
 const btnAdd = document.getElementById("btn-collect-add");
 if (btnAdd) {
-btnAdd.addEventListener("click", () => {
+btnAdd.addEventListener("click", function () {
 const raw = document.getElementById("collect-input").value.trim();
 if (!raw) return;
 try {
@@ -597,9 +589,11 @@ const obj = JSON.parse(raw);
 collected.push(obj);
 document.getElementById("collect-input").value = "";
 const tbody = document.getElementById("collect-table-body");
-tbody.innerHTML = collected.map(c => `
+tbody.innerHTML = collected.map(function (c) {
+return `
 ${escapeHtml(c.name || "Unknown")}
-${escapeHtml(c.room || "—")}\({c.total || 0} / \){MAX_TOTAL}${c.eliminated ? "Eliminated" : "Survivor"}Pasted JSON`).join("");
+${escapeHtml(c.room || "—")}\({c.total || 0} / \){MAX_TOTAL}${c.eliminated ? "Eliminated" : "Survivor"}Pasted JSON`;
+}).join("");
 } catch (err) {
 alert("Invalid result format. Please paste the exact JSON text exported by the student.");
 }
@@ -607,10 +601,10 @@ alert("Invalid result format. Please paste the exact JSON text exported by the s
 }
 const btnCsv = document.getElementById("btn-collect-csv");
 if (btnCsv) {
-btnCsv.addEventListener("click", () => {
+btnCsv.addEventListener("click", function () {
 if (!collected.length) return;
 const lines = ["Name,Room,Total,Status,Source"];
-collected.forEach(c => {
+collected.forEach(function (c) {
 lines.push("${(c.name || "").replace(/"/g, '""')}",${c.room || ""},${c.total || 0},${c.eliminated ? "Eliminated" : "Survivor"},Pasted);
 });
 downloadCSV(lines.join("\n"), "collected-fallback-grades.csv");
